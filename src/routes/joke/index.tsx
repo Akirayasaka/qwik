@@ -1,5 +1,5 @@
-import { component$, useSignal } from '@builder.io/qwik';
-import { routeLoader$, routeAction$, Form } from '@builder.io/qwik-city';
+import { component$, useSignal, useTask$ } from '@builder.io/qwik';
+import { routeLoader$, routeAction$, Form, server$ } from '@builder.io/qwik-city';
 
 /** Loading Data */
 export const useDadJoke = routeLoader$(async () => {
@@ -26,6 +26,16 @@ export default component$(() => {
   // Calling our `useDadJoke` hook, will return a reactive signal to the loaded data.
   const dadJokeSignal = useDadJoke();
   const favoriteJokeAction = useJokeVoteAction();
+
+  // Such as Vue3 Watch 
+  useTask$(({ track }) => {
+    track(() => isFavoriteSignal.value);
+    console.log('FAVORITE (isomorphic)', isFavoriteSignal.value);
+    server$(() => {
+      console.log('FAVORITE (server)', isFavoriteSignal.value);
+    })();
+  });
+
   return (
     <section class="section bright">
       <p>{dadJokeSignal.value.joke}</p>
